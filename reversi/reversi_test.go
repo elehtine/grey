@@ -29,7 +29,7 @@ type Move struct {
     turn Tile
 }
 
-func TestTwoMoves(t *testing.T) {
+func TestTwoIllegalMoves(t *testing.T) {
     board := NewBoard()
 
     moves := []Move {

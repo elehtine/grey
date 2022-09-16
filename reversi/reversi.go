@@ -23,12 +23,14 @@ func startPosition() [Width][Height]Tile {
 
 type Board struct {
     tiles [Width][Height]Tile
+    turn Tile
 }
 
 
 func NewBoard() *Board {
     board := new(Board)
     board.tiles = startPosition()
+    board.turn = Dark
     return board
 }
 
@@ -37,4 +39,14 @@ func (board *Board) Get(x, y int) Tile {
 }
 
 func (board *Board) Move(x, y int) {
+    board.tiles[x][y] = board.turn
+    board.nextTurn()
+}
+
+func (board *Board) nextTurn() {
+    if board.turn == Light {
+        board.turn = Dark
+        return
+    }
+    board.turn = Light
 }
