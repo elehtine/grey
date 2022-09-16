@@ -24,24 +24,49 @@ func TestBoardStartPosition(t *testing.T) {
     }
 }
 
-type Move struct {
-    x, y int
-    turn Tile
-}
+func TestTwoLegalMoves(t *testing.T) {
+    type Move struct {
+        x, y int
+        turn Square
+    }
 
-func TestTwoIllegalMoves(t *testing.T) {
     board := NewBoard()
-
     moves := []Move {
         Move{x: 5, y: 3, turn: Dark},
         Move{x: 4, y: 2, turn: Light},
     }
 
     for _, m := range moves {
-        board.Move(m.x, m.y)
+        _ = board.Move(m.x, m.y)
         tile := board.Get(m.x, m.y)
         if tile != m.turn {
             t.Errorf("Get(%d, %d) = %d, want %d", m.x, m.y, tile, m.turn)
+        }
+    }
+}
+
+func TestTryTwoIllegalMoves(t *testing.T) {
+    type Move struct {
+        x, y int
+    }
+
+    board := NewBoard()
+    moves := []Move {
+        Move{x: 4, y: 4},
+        Move{x: 3, y: 2},
+    }
+
+    for _, m := range moves {
+        tileBefore := board.Get(m.x, m.y)
+
+        err := board.Move(m.x, m.y)
+        if err == nil {
+            t.Error("Error expected from illegal move")
+        }
+
+        tile := board.Get(m.x, m.y)
+        if tile != tileBefore {
+            t.Errorf("Get(%d, %d) = %d, want %d", m.x, m.y, tile, tileBefore)
         }
     }
 }

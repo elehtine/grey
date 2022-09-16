@@ -1,19 +1,21 @@
 package reversi
 
+import "errors"
+
 const (
     Height = 8
     Width = 8
 )
 
-type Tile int
+type Square int
 const (
-    Empty Tile = iota
+    Empty Square = iota
     Dark
     Light
 )
 
-func startPosition() [Width][Height]Tile {
-    tiles := [Width][Height]Tile {}
+func startPosition() [Width][Height]Square {
+    tiles := [Width][Height]Square {}
     tiles[3][3] = Light
     tiles[4][4] = Light
     tiles[4][3] = Dark
@@ -22,8 +24,8 @@ func startPosition() [Width][Height]Tile {
 }
 
 type Board struct {
-    tiles [Width][Height]Tile
-    turn Tile
+    tiles [Width][Height]Square
+    turn Square
 }
 
 
@@ -34,13 +36,18 @@ func NewBoard() *Board {
     return board
 }
 
-func (board *Board) Get(x, y int) Tile {
+func (board *Board) Get(x, y int) Square {
     return board.tiles[x][y]
 }
 
-func (board *Board) Move(x, y int) {
+func (board *Board) Move(x, y int) error {
+    if board.tiles[x][y] != Empty {
+        return errors.New("Square not empty")
+    }
+
     board.tiles[x][y] = board.turn
     board.nextTurn()
+    return nil
 }
 
 func (board *Board) nextTurn() {
