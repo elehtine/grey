@@ -52,6 +52,9 @@ func (board *Board) Get(x, y int) Square {
 
 
 func (board *Board) Move(x, y int) error {
+    if board.turn == Empty {
+        return errors.New("Game over")
+    }
     if board.tiles[x][y] != Empty {
         return errors.New("Square not empty")
     }
@@ -62,7 +65,7 @@ func (board *Board) Move(x, y int) error {
             if dy == 0 && dx == 0 {
                 continue
             }
-            captureCount += board.capture(x, y, Direction{dx, dy})
+            captureCount += board.capture(x, y, Direction{dx, dy}, board.turn)
         }
     }
 
@@ -75,24 +78,36 @@ func (board *Board) Move(x, y int) error {
     return nil
 }
 
-func (board *Board) capture(x, y int, dir Direction) int {
-    startX, startY := x + dir.dx, y + dir.dy
-    if offBoard(startX, startY) || board.tiles[startX][startY] == board.turn {
-        return 0
+func (board *Board) canCapture(x, y int, dir Direction, turn Square) bool {
+    if board.tiles[x][y] != Empty {
+        return false
     }
 
-    x, y = startX, startY
-    for board.tiles[x][y] != board.turn {
+    x += dir.dx
+    y += dir.dy
+    if offBoard(x, y) || board.tiles[x][y] == Empty || board.tiles[x][y] == turn {
+        return false
+    }
+
+    for board.tiles[x][y] != turn {
         x += dir.dx
         y += dir.dy
         if offBoard(x, y) || board.tiles[x][y] == Empty {
-            return 0
+            return false
         }
+    }
+    return true
+}
+
+func (board *Board) capture(x, y int, dir Direction, turn Square) int {
+    if !board.canCapture(x, y, dir, turn) {
+        return 0
     }
 
     count := 0
-    for x, y = startX, startY; board.tiles[x][y] != board.turn; count++ {
-        board.tiles[x][y] = board.turn
+    startX, startY := x + dir.dx, y + dir.dy
+    for x, y = startX, startY; board.tiles[x][y] != turn; count++ {
+        board.tiles[x][y] = turn
         x += dir.dx
         y += dir.dy
     }
@@ -100,11 +115,41 @@ func (board *Board) capture(x, y int, dir Direction) int {
 }
 
 
-
 func (board *Board) nextTurn() {
-    if board.turn == Light {
+    lightCapture, darkCapture := false, false
+    for file := 0; file < Width; file++ {
+        for rank := 0; rank < Height; rank++ {
+            for dy := -1; dy <= 1; dy++ {
+                for dx := -1; dx <= 1; dx++ {
+                    if dy == 0 && dx == 0 {
+                        continue
+                    }
+                    dir := Direction{dx, dy}
+                    if board.canCapture(file, rank, dir, Light) {
+                        lightCapture = true
+                    }
+                    if board.canCapture(file, rank, dir, Dark) {
+                        darkCapture = true
+                    }
+                }
+            }
+        }
+    }
+
+
+    if !lightCapture && !darkCapture {
+        board.turn = Empty
+        return
+    }
+
+    if board.turn == Light && darkCapture {
         board.turn = Dark
         return
     }
-    board.turn = Light
+
+    if lightCapture {
+        board.turn = Light
+    } else {
+        board.turn = Dark
+    }
 }

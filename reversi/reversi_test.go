@@ -92,3 +92,18 @@ func TestTwoMovesCheckCapture(t *testing.T) {
         }
     }
 }
+
+func TestSkipMoves(t *testing.T) {
+    board := new(Board)
+    tiles := [Width][Height]Square {}
+    tiles[3][1] = Light
+    tiles[3][2] = Dark
+    tiles[3][3] = Light
+    board.tiles = tiles
+    board.turn = Dark
+
+    board.Move(3, 0)
+    if board.turn != Dark {
+        t.Errorf("Turn should be %d but it is %d", Dark, board.turn)
+    }
+}
