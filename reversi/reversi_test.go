@@ -24,3 +24,25 @@ func TestBoardStartPosition(t *testing.T) {
     }
 }
 
+type Move struct {
+    x, y int
+    turn Tile
+}
+
+func TestTwoMoves(t *testing.T) {
+    board := NewBoard()
+
+    moves := []Move {
+        Move{x: 5, y: 3, turn: Dark},
+        Move{x: 4, y: 2, turn: Light},
+    }
+
+    for _, m := range moves {
+        board.Move(m.x, m.y)
+        tile := board.Get(m.x, m.y)
+        if tile != m.turn {
+            t.Errorf("Get(%d, %d) = %d, want %d", m.x, m.y, tile, m.turn)
+        }
+    }
+}
+
