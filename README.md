@@ -2,8 +2,8 @@
 
 Command line Reversi game with Golang
 
-## Installation
+## Usage
 
 Clone project with git.
 
-Run project with `go run .`
+Run project with `go run .` and test with `go run test ./...`
