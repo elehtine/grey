@@ -31,7 +31,7 @@ func Draw(b *reversi.Board) {
     fmt.Println("  abcdefgh")
 }
 
-func InputMove(b *reversi.Board, reader *bufio.Reader) (int, int) {
+func InputMove(b *reversi.Board, reader *bufio.Reader) {
     fmt.Print("Give move: ")
     var file, rank int
 
@@ -43,14 +43,19 @@ func InputMove(b *reversi.Board, reader *bufio.Reader) (int, int) {
         }
 
         file, rank, err = parseMove(move)
-        if err == nil {
-            break
+        if err != nil {
+            fmt.Println(err.Error())
+            continue
         }
 
-        fmt.Println(err.Error())
-    }
+        err = b.Move(file, rank)
+        if err != nil {
+            fmt.Println(err.Error())
+            continue
+        }
 
-    return file, rank
+        break
+    }
 }
 
 func parseMove(moveString []byte) (int, int, error) {

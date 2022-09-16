@@ -13,7 +13,6 @@ func main() {
 
     for {
 	    Draw(board)
-        file, rank := InputMove(board, reader)
-        board.Move(file, rank)
+        InputMove(board, reader)
     }
 }
