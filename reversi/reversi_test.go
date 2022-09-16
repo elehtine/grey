@@ -32,8 +32,8 @@ func TestTwoLegalMoves(t *testing.T) {
 
     board := NewBoard()
     moves := []Move {
-        Move{x: 5, y: 4, turn: Dark},
-        Move{x: 4, y: 2, turn: Light},
+        Move{x: 4, y: 5, turn: Dark},
+        Move{x: 5, y: 3, turn: Light},
     }
 
     for _, m := range moves {
@@ -71,3 +71,24 @@ func TestTryTwoIllegalMoves(t *testing.T) {
     }
 }
 
+func TestTwoMovesCheckCapture(t *testing.T) {
+    type Move struct {
+        x, y int
+        flipX, flipY int
+    }
+
+    board := NewBoard()
+    moves := []Move {
+        Move{x: 2, y: 3, flipX: 3, flipY: 3},
+        Move{x: 2, y: 4, flipX: 3, flipY: 4},
+    }
+
+    for _, m := range moves {
+        _ = board.Move(m.x, m.y)
+        tile := board.Get(m.x, m.y)
+        flipTile := board.Get(m.flipX, m.flipY)
+        if tile != flipTile {
+            t.Errorf("Not equal %d == %d", tile, flipTile)
+        }
+    }
+}

@@ -7,6 +7,13 @@ const (
     Width = 8
 )
 
+func offBoard(file, rank int) bool {
+    if file < 0 || file >= 8 || rank < 0 || rank >= 8 {
+        return true
+    }
+    return false
+}
+
 type Square int
 const (
     Empty Square = iota
@@ -49,19 +56,17 @@ func (board *Board) Move(x, y int) error {
         return errors.New("Square not empty")
     }
 
-    capture := false
+    captureCount := 0
     for dy := -1; dy <= 1; dy++ {
         for dx := -1; dx <= 1; dx++ {
             if dy == 0 && dx == 0 {
                 continue
             }
-            if board.canCapture(x, y, Direction{dx, dy}) {
-                capture = true
-            }
+            captureCount += board.capture(x, y, Direction{dx, dy})
         }
     }
 
-    if !capture {
+    if captureCount == 0 {
         return errors.New("Move is not capture")
     }
 
@@ -70,22 +75,28 @@ func (board *Board) Move(x, y int) error {
     return nil
 }
 
-func (board *Board) canCapture(x, y int, dir Direction) bool {
-    x += dir.dx
-    y += dir.dy
-    if x < 0 || x >= 8 || y < 0 || y >= 8 || board.tiles[x][y] == board.turn {
-        return false
+func (board *Board) capture(x, y int, dir Direction) int {
+    startX, startY := x + dir.dx, y + dir.dy
+    if offBoard(startX, startY) || board.tiles[startX][startY] == board.turn {
+        return 0
     }
-    for {
-        if x < 0 || x >= 8 || y < 0 || y >= 8 || board.tiles[x][y] == Empty {
-            return false
+
+    x, y = startX, startY
+    for board.tiles[x][y] != board.turn {
+        x += dir.dx
+        y += dir.dy
+        if offBoard(x, y) || board.tiles[x][y] == Empty {
+            return 0
         }
-        if board.tiles[x][y] == board.turn {
-            return true
-        }
+    }
+
+    count := 0
+    for x, y = startX, startY; board.tiles[x][y] != board.turn; count++ {
+        board.tiles[x][y] = board.turn
         x += dir.dx
         y += dir.dy
     }
+    return count
 }
 
 
