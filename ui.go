@@ -15,9 +15,9 @@ func Draw(b *reversi.Board) {
         for file := 0; file < reversi.Width; file++ {
             tile := "."
             switch b.Get(file, rank) {
-            case reversi.Black:
+            case reversi.Dark:
                 tile = "x"
-            case reversi.White:
+            case reversi.Light:
                 tile = "o"
             }
             fmt.Print(tile)

@@ -8,8 +8,8 @@ const (
 type Tile int
 const (
     Empty Tile = iota
-    Black
-    White
+    Dark
+    Light
 )
 
 
@@ -19,10 +19,10 @@ type Board struct {
 
 func NewBoard() *Board {
     board := new(Board)
-    board.tiles[3][3] = White
-    board.tiles[4][4] = White
-    board.tiles[4][3] = Black
-    board.tiles[3][4] = Black
+    board.tiles[3][3] = Light
+    board.tiles[4][4] = Light
+    board.tiles[4][3] = Dark
+    board.tiles[3][4] = Dark
     return board
 }
 
