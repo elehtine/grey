@@ -32,7 +32,7 @@ func TestTwoLegalMoves(t *testing.T) {
 
     board := NewBoard()
     moves := []Move {
-        Move{x: 5, y: 3, turn: Dark},
+        Move{x: 5, y: 4, turn: Dark},
         Move{x: 4, y: 2, turn: Light},
     }
 
@@ -53,7 +53,7 @@ func TestTryTwoIllegalMoves(t *testing.T) {
     board := NewBoard()
     moves := []Move {
         Move{x: 4, y: 4},
-        Move{x: 3, y: 2},
+        Move{x: 2, y: 2},
     }
 
     for _, m := range moves {
