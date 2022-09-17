@@ -23,7 +23,7 @@ func NewCommandLineInterface(b *reversi.Board, r *bufio.Reader) *CommandLineInte
 }
 
 func (cli *CommandLineInterface) PlayGame() {
-    for cli.board.Status().turn != Empty {
+    for cli.board.Status().Turn != reversi.Empty {
         cli.draw()
         cli.inputMove()
     }
@@ -69,7 +69,8 @@ func (cli *CommandLineInterface) inputMove() {
             continue
         }
 
-        err = cli.board.Move(file, rank)
+        m := reversi.MakeMove(file, rank)
+        err = cli.board.Move(m)
         if err != nil {
             fmt.Println(err.Error())
             continue
@@ -81,7 +82,7 @@ func (cli *CommandLineInterface) inputMove() {
 
 func (cli *CommandLineInterface) result() {
     st := cli.board.Status()
-    fmt.Printf("Dark: %d, Light: %d\n", st.darkPoints, st.lightPoints)
+    fmt.Printf("Dark: %d, Light: %d\n", st.DarkPoints, st.LightPoints)
 }
 
 func parseMove(moveString []byte) (int, int, error) {
