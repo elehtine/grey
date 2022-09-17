@@ -50,8 +50,29 @@ func (board *Board) Get(x, y int) Square {
     return board.tiles[x][y]
 }
 
-func (board *Board) Running() bool {
-    return board.turn != Empty
+type Status struct {
+    turn Square
+    darkPoints, lightPoints int
+}
+
+func (board *Board) Status() Status {
+    return Status{
+        turn: board.turn,
+        darkPoints: board.count(Dark),
+        lightPoints: board.count(Light),
+    }
+}
+
+func (board *Board) count(turn Square) int {
+    count := 0
+    for rank := 0; rank < Height; rank++ {
+        for file := 0; file < Width; file++ {
+            if board[x][y] == turn {
+                count++
+            }
+        }
+    }
+    return count
 }
 
 func (board *Board) Move(x, y int) error {

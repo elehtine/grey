@@ -23,10 +23,11 @@ func NewCommandLineInterface(b *reversi.Board, r *bufio.Reader) *CommandLineInte
 }
 
 func (cli *CommandLineInterface) PlayGame() {
-    for cli.board.Running() {
+    for cli.board.Status().turn != Empty {
         cli.draw()
         cli.inputMove()
     }
+    cli.result()
 }
 
 func (cli *CommandLineInterface) draw() {
@@ -76,6 +77,11 @@ func (cli *CommandLineInterface) inputMove() {
 
         break
     }
+}
+
+func (cli *CommandLineInterface) result() {
+    st := cli.board.Status()
+    fmt.Printf("Dark: %d, Light: %d\n", st.darkPoints, st.lightPoints)
 }
 
 func parseMove(moveString []byte) (int, int, error) {
