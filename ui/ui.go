@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
     "fmt"
@@ -8,8 +8,28 @@ import (
     "github.com/elehtine/grey/reversi"
 )
 
+type UserInterface interface {
+    PlayGame()
+}
 
-func Draw(b *reversi.Board) {
+type CommandLineInterface struct {
+    board *reversi.Board
+    reader *bufio.Reader
+}
+
+func NewCommandLineInterface(b *reversi.Board, r *bufio.Reader) *CommandLineInterface {
+    cli := CommandLineInterface{board: b, reader: r}
+    return &cli
+}
+
+func (cli *CommandLineInterface) PlayGame() {
+    for cli.board.Running() {
+        cli.draw()
+        cli.inputMove()
+    }
+}
+
+func (cli *CommandLineInterface) draw() {
     fmt.Println("  abcdefgh")
     fmt.Println(" +--------+")
     for rank := 0; rank < reversi.Height; rank++ {
@@ -17,7 +37,7 @@ func Draw(b *reversi.Board) {
         fmt.Printf("%d|", rankNum)
         for file := 0; file < reversi.Width; file++ {
             tile := "."
-            switch b.Get(file, rank) {
+            switch cli.board.Get(file, rank) {
             case reversi.Dark:
                 tile = "x"
             case reversi.Light:
@@ -31,12 +51,12 @@ func Draw(b *reversi.Board) {
     fmt.Println("  abcdefgh")
 }
 
-func InputMove(b *reversi.Board, reader *bufio.Reader) {
+func (cli *CommandLineInterface) inputMove() {
     fmt.Print("Give move: ")
     var file, rank int
 
     for {
-        move, _, err := reader.ReadLine()
+        move, _, err := cli.reader.ReadLine()
         if err != nil {
             fmt.Println(err.Error())
             continue
@@ -48,7 +68,7 @@ func InputMove(b *reversi.Board, reader *bufio.Reader) {
             continue
         }
 
-        err = b.Move(file, rank)
+        err = cli.board.Move(file, rank)
         if err != nil {
             fmt.Println(err.Error())
             continue

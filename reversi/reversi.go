@@ -50,6 +50,9 @@ func (board *Board) Get(x, y int) Square {
     return board.tiles[x][y]
 }
 
+func (board *Board) Running() bool {
+    return board.turn != Empty
+}
 
 func (board *Board) Move(x, y int) error {
     if board.turn == Empty {

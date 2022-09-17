@@ -5,14 +5,13 @@ import (
     "bufio"
 
     "github.com/elehtine/grey/reversi"
+    "github.com/elehtine/grey/ui"
 )
 
 func main() {
-    board := reversi.NewBoard()
     reader := bufio.NewReader(os.Stdin)
+    board := reversi.NewBoard()
+    cli := ui.NewCommandLineInterface(board, reader)
 
-    for {
-	    Draw(board)
-        InputMove(board, reader)
-    }
+    cli.PlayGame()
 }
