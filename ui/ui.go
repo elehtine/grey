@@ -4,51 +4,95 @@ import (
     "fmt"
     "bufio"
     "errors"
+    "math/rand"
 
     "github.com/elehtine/grey/reversi"
 )
 
-type UserInterface interface {
-    PlayGame()
+type Player interface {
+    move()
 }
 
-type CommandLineInterface struct {
+type User struct {
     board *reversi.Board
     reader *bufio.Reader
 }
 
-type AutoPlay struct {
+type Bot struct {
     board *reversi.Board
 }
 
-func NewAutoPlay(board *reversi.Board) *AutoPlay {
-    return &AutoPlay{board: board}
+type PlayerGenerator struct {
+    board *reversi.Board
+    reader *bufio.Reader
 }
 
-func (play *AutoPlay) PlayGame() {
-    for play.board.Status().Turn != reversi.Empty {
-        draw(play.board)
-        play.pickMove()
+func NewPlayerGenerator(board *reversi.Board, reader *bufio.Reader) *PlayerGenerator {
+    return &PlayerGenerator{board: board, reader: reader}
+}
+
+func (playerGenerator *PlayerGenerator) CreateUser() Player {
+    return &User{board: playerGenerator.board, reader: playerGenerator.reader}
+}
+
+func (playerGenerator *PlayerGenerator) CreateBot() Player {
+    return &Bot{board: playerGenerator.board}
+}
+
+func (user *User) move() {
+    fmt.Print("Give move: ")
+    var file, rank int
+
+    for {
+        move, _, err := user.reader.ReadLine()
+        if err != nil {
+            fmt.Println(err.Error())
+            continue
+        }
+
+        file, rank, err = parseMove(move)
+        if err != nil {
+            fmt.Println(err.Error())
+            continue
+        }
+
+        m := reversi.MakeMove(file, rank)
+        err = user.board.Move(m)
+        if err != nil {
+            fmt.Println(err.Error())
+            continue
+        }
+
+        break
     }
-    result(play.board)
 }
 
-func (play *AutoPlay) pickMove() {
-    legalMoves := play.board.Moves()
-    play.board.Move(legalMoves[0])
+func (bot *Bot) move() {
+    legalMoves := bot.board.Moves()
+    n := len(legalMoves)
+    bot.board.Move(legalMoves[rand.Intn(n)])
 }
 
-func NewCommandLineInterface(b *reversi.Board, r *bufio.Reader) *CommandLineInterface {
-    cli := CommandLineInterface{board: b, reader: r}
-    return &cli
+type UserInterface struct {
+    board *reversi.Board
+    darkPlayer Player
+    lightPlayer Player
 }
 
-func (cli *CommandLineInterface) PlayGame() {
-    for cli.board.Status().Turn != reversi.Empty {
-        draw(cli.board)
-        cli.inputMove()
+func NewUserInterface(board *reversi.Board, dark, light Player) *UserInterface {
+    return &UserInterface{board: board, darkPlayer: dark, lightPlayer: light}
+}
+
+func (ui *UserInterface) PlayGame() {
+    for ui.board.Status().Turn != reversi.Empty {
+        draw(ui.board)
+        if ui.board.Status().Turn == reversi.Dark {
+            ui.darkPlayer.move()
+        } else {
+            ui.lightPlayer.move()
+        }
     }
-    result(cli.board)
+    result(ui.board)
 }
 
 func draw(board *reversi.Board) {
@@ -73,36 +117,9 @@ func draw(board *reversi.Board) {
     fmt.Println("  abcdefgh")
 }
 
-func (cli *CommandLineInterface) inputMove() {
-    fmt.Print("Give move: ")
-    var file, rank int
-
-    for {
-        move, _, err := cli.reader.ReadLine()
-        if err != nil {
-            fmt.Println(err.Error())
-            continue
-        }
-
-        file, rank, err = parseMove(move)
-        if err != nil {
-            fmt.Println(err.Error())
-            continue
-        }
-
-        m := reversi.MakeMove(file, rank)
-        err = cli.board.Move(m)
-        if err != nil {
-            fmt.Println(err.Error())
-            continue
-        }
-
-        break
-    }
-}
-
 func result(board *reversi.Board) {
     st := board.Status()
+    draw(board)
     fmt.Printf("Dark: %d, Light: %d\n", st.DarkPoints, st.LightPoints)
 }
 
