@@ -33,9 +33,9 @@ func TestTwoLegalMoves(t *testing.T) {
 
     for _, m := range moves {
         _ = board.Move(m)
-        tile := board.Get(m.file, m.rank)
+        tile := board.Get(m.File, m.Rank)
         if tile == Empty {
-            t.Errorf("Get(%d, %d) = %d", m.file, m.rank, tile)
+            t.Errorf("Get(%d, %d) = %d", m.File, m.Rank, tile)
         }
     }
 }
@@ -48,16 +48,16 @@ func TestTryTwoIllegalMoves(t *testing.T) {
     }
 
     for _, m := range moves {
-        tileBefore := board.Get(m.file, m.rank)
+        tileBefore := board.Get(m.File, m.Rank)
 
         err := board.Move(m)
         if err == nil {
             t.Error("Error expected from illegal move")
         }
 
-        tile := board.Get(m.file, m.rank)
+        tile := board.Get(m.File, m.Rank)
         if tile != tileBefore {
-            t.Errorf("Get(%d, %d) = %d, want %d", m.file, m.rank, tile, tileBefore)
+            t.Errorf("Get(%d, %d) = %d, want %d", m.File, m.Rank, tile, tileBefore)
         }
     }
 }
@@ -76,8 +76,8 @@ func TestTwoMovesCheckCapture(t *testing.T) {
     for i, m := range moves {
         _ = board.Move(m)
         f := flips[i]
-        tile := board.Get(m.file, m.rank)
-        flipTile := board.Get(f.file, f.rank)
+        tile := board.Get(m.File, m.Rank)
+        flipTile := board.Get(f.File, f.Rank)
         if tile != flipTile {
             t.Errorf("Not equal %d == %d", tile, flipTile)
         }

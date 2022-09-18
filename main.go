@@ -12,9 +12,9 @@ func main() {
     board := reversi.NewBoard()
     reader := bufio.NewReader(os.Stdin)
 
-    playerGenerator := ui.NewPlayerGenerator(board, reader)
-    dark := playerGenerator.CreateUser()
-    light := playerGenerator.CreateBot()
-    userInterface := ui.NewUserInterface(board, dark, light)
+    uiBuilder := ui.NewUserInterfaceBuilder(board, reader)
+    uiBuilder.DarkPlayer("bot")
+    uiBuilder.LightPlayer("easy")
+    userInterface := uiBuilder.GetUserInterface()
     userInterface.PlayGame()
 }

@@ -23,21 +23,55 @@ type Bot struct {
     easy bool
 }
 
-type PlayerGenerator struct {
+type UserInterfaceBuilder struct {
     board *reversi.Board
     reader *bufio.Reader
+    darkPlayer Player
+    lightPlayer Player
 }
 
-func NewPlayerGenerator(board *reversi.Board, reader *bufio.Reader) *PlayerGenerator {
-    return &PlayerGenerator{board: board, reader: reader}
+func NewUserInterfaceBuilder(board *reversi.Board, reader *bufio.Reader) *UserInterfaceBuilder {
+    return &UserInterfaceBuilder{
+        board: board,
+        reader: reader,
+        darkPlayer: &Bot{board: board, easy: false},
+        lightPlayer: &Bot{board: board, easy: false},
+    }
 }
 
-func (playerGenerator *PlayerGenerator) CreateUser() Player {
-    return &User{board: playerGenerator.board, reader: playerGenerator.reader}
+func (uiBuilder *UserInterfaceBuilder) DarkPlayer(player string) {
+    uiBuilder.darkPlayer = uiBuilder.createPlayer(player)
 }
 
-func (playerGenerator *PlayerGenerator) CreateBot() Player {
-    return &Bot{board: playerGenerator.board, easy: false}
+func (uiBuilder *UserInterfaceBuilder) LightPlayer(player string) {
+    uiBuilder.lightPlayer = uiBuilder.createPlayer(player)
+}
+
+func (uiBuilder *UserInterfaceBuilder) GetUserInterface() *UserInterface {
+    return &UserInterface{
+        board: uiBuilder.board,
+        darkPlayer: uiBuilder.darkPlayer,
+        lightPlayer: uiBuilder.lightPlayer,
+    }
+}
+
+func (uiBuilder *UserInterfaceBuilder) createPlayer(player string) Player {
+    if player == "bot" {
+        return &Bot{
+            board: uiBuilder.board,
+            easy: false,
+        }
+    }
+    if player == "user" {
+        return &User{
+            board: uiBuilder.board,
+            reader: uiBuilder.reader,
+        }
+    }
+    return &Bot{
+        board: uiBuilder.board,
+        easy: true,
+    }
 }
 
 func (user *User) move() {
@@ -71,8 +105,8 @@ func (user *User) move() {
 func (bot *Bot) move() {
     legalMoves := bot.board.Moves()
     if bot.easy {
-        n := len(legalMoves)
-        bot.board.Move(legalMoves[rand.Intn(n)])
+        index := rand.Intn(len(legalMoves))
+        bot.board.Move(legalMoves[index])
         return
     }
 
@@ -103,16 +137,13 @@ type UserInterface struct {
     lightPlayer Player
 }
 
-func NewUserInterface(board *reversi.Board, dark, light Player) *UserInterface {
-    return &UserInterface{board: board, darkPlayer: dark, lightPlayer: light}
-}
-
 func (ui *UserInterface) PlayGame() {
     for ui.board.Status().Turn != reversi.Empty {
+        turn := ui.board.Status().Turn
         draw(ui.board)
-        if ui.board.Status().Turn == reversi.Dark {
+        if turn == reversi.Dark {
             ui.darkPlayer.move()
-        } else {
+        } else if turn == reversi.Light {
             ui.lightPlayer.move()
         }
     }
