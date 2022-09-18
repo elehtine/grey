@@ -1,7 +1,15 @@
+/*
+Package reversi implements game of reversi. One game can be played with single
+instance.
+
+The reversi can be played via ui package. However reversi can be used without
+ui package.
+*/
 package reversi
 
 import "errors"
 
+// Height and Width of the game board
 const (
     Height = 8
     Width = 8
@@ -14,11 +22,12 @@ func offBoard(file, rank int) bool {
     return false
 }
 
+// Enum for squares
 type Square int
 const (
-    Empty Square = iota
-    Dark
-    Light
+    Empty Square = iota // Empty square
+    Dark // Square with dark disk
+    Light // Square with light disk
 )
 
 func startPosition() [Width][Height]Square {
@@ -33,14 +42,17 @@ func startPosition() [Width][Height]Square {
 type direction struct {
     dx, dy int
 }
+
+// A Move contains file and rank for move.
 type Move struct {
-    File, Rank int
+    File, Rank int // File is x-coordinate, Rank is y-coordinate.
 }
 
 func MakeMove(file, rank int) Move {
     return Move{File: file, Rank: rank}
 }
 
+// A Board contains current state of the game. It stores turn and all squares.
 type Board struct {
     squares [Width][Height]Square
     turn Square
@@ -52,9 +64,10 @@ func NewBoard() *Board {
     return board
 }
 
+// A Status stores object for returning game turn and points.
 type Status struct {
-    Turn Square
-    DarkPoints, LightPoints int
+    Turn Square // If game is ended turn is Empty, else Dark or Light.
+    DarkPoints, LightPoints int // Points for each player.
 }
 
 func (board *Board) Status() Status {

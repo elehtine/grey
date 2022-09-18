@@ -1,3 +1,9 @@
+/*
+Package ui is user interface between player moves and reversi game.
+
+The ui package can be replaced with own user interface. In other words ui
+package doesn't affect reversi package in any way.
+*/
 package ui
 
 import (
@@ -23,6 +29,10 @@ type bot struct {
     easy bool
 }
 
+/*
+A UserInterfaceBuilder is builder for userInterface object used to set dark and
+light players.
+*/
 type UserInterfaceBuilder struct {
     board *reversi.Board
     scanner *bufio.Scanner
@@ -30,6 +40,12 @@ type UserInterfaceBuilder struct {
     lightPlayer player
 }
 
+/*
+Create new instance of ui builder. Dark and light players set to bots as
+default.
+
+It is good practice to call DarkPlayer and LightPlayer methods both once.
+*/
 func NewUserInterfaceBuilder(board *reversi.Board, scanner *bufio.Scanner) *UserInterfaceBuilder {
     return &UserInterfaceBuilder{
         board: board,
@@ -39,14 +55,17 @@ func NewUserInterfaceBuilder(board *reversi.Board, scanner *bufio.Scanner) *User
     }
 }
 
+// Set value for dark player of object to be build.
 func (uiBuilder *UserInterfaceBuilder) DarkPlayer(player string) {
     uiBuilder.darkPlayer = uiBuilder.createPlayer(player)
 }
 
+// Set value for light player of object to be build.
 func (uiBuilder *UserInterfaceBuilder) LightPlayer(player string) {
     uiBuilder.lightPlayer = uiBuilder.createPlayer(player)
 }
 
+// Return
 func (uiBuilder *UserInterfaceBuilder) GetUserInterface() *userInterface {
     return &userInterface{
         board: uiBuilder.board,
