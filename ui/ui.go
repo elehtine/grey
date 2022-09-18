@@ -17,6 +17,27 @@ type CommandLineInterface struct {
     reader *bufio.Reader
 }
 
+type AutoPlay struct {
+    board *reversi.Board
+}
+
+func NewAutoPlay(board *reversi.Board) *AutoPlay {
+    return &AutoPlay{board: board}
+}
+
+func (play *AutoPlay) PlayGame() {
+    for play.board.Status().Turn != reversi.Empty {
+        draw(play.board)
+        play.pickMove()
+    }
+    result(play.board)
+}
+
+func (play *AutoPlay) pickMove() {
+    legalMoves := play.board.Moves()
+    play.board.Move(legalMoves[0])
+}
+
 func NewCommandLineInterface(b *reversi.Board, r *bufio.Reader) *CommandLineInterface {
     cli := CommandLineInterface{board: b, reader: r}
     return &cli
@@ -24,13 +45,13 @@ func NewCommandLineInterface(b *reversi.Board, r *bufio.Reader) *CommandLineInte
 
 func (cli *CommandLineInterface) PlayGame() {
     for cli.board.Status().Turn != reversi.Empty {
-        cli.draw()
+        draw(cli.board)
         cli.inputMove()
     }
-    cli.result()
+    result(cli.board)
 }
 
-func (cli *CommandLineInterface) draw() {
+func draw(board *reversi.Board) {
     fmt.Println("  abcdefgh")
     fmt.Println(" +--------+")
     for rank := 0; rank < reversi.Height; rank++ {
@@ -38,7 +59,7 @@ func (cli *CommandLineInterface) draw() {
         fmt.Printf("%d|", rankNum)
         for file := 0; file < reversi.Width; file++ {
             tile := "."
-            switch cli.board.Get(file, rank) {
+            switch board.Get(file, rank) {
             case reversi.Dark:
                 tile = "x"
             case reversi.Light:
@@ -80,8 +101,8 @@ func (cli *CommandLineInterface) inputMove() {
     }
 }
 
-func (cli *CommandLineInterface) result() {
-    st := cli.board.Status()
+func result(board *reversi.Board) {
+    st := board.Status()
     fmt.Printf("Dark: %d, Light: %d\n", st.DarkPoints, st.LightPoints)
 }
 

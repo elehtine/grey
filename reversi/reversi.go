@@ -30,11 +30,6 @@ func startPosition() [Width][Height]Square {
     return squares
 }
 
-type Board struct {
-    squares [Width][Height]Square
-    turn Square
-}
-
 type Direction struct {
     dx, dy int
 }
@@ -46,15 +41,15 @@ func MakeMove(file, rank int) Move {
     return Move{file: file, rank: rank}
 }
 
+type Board struct {
+    squares [Width][Height]Square
+    turn Square
+}
 func NewBoard() *Board {
     board := new(Board)
     board.squares = startPosition()
     board.turn = Dark
     return board
-}
-
-func (board *Board) Get(file, rank int) Square {
-    return board.squares[file][rank]
 }
 
 type Status struct {
@@ -68,6 +63,10 @@ func (board *Board) Status() Status {
         DarkPoints: board.count(Dark),
         LightPoints: board.count(Light),
     }
+}
+
+func (board *Board) Get(file, rank int) Square {
+    return board.squares[file][rank]
 }
 
 func (board *Board) count(turn Square) int {
@@ -87,8 +86,8 @@ func (board *Board) Move(move Move) error {
     if board.turn == Empty {
         return errors.New("Game over")
     }
-    if board.squares[file][rank] != Empty {
-        return errors.New("Square not empty")
+    if !board.isLegalMove(move) {
+        return errors.New("Illegal move")
     }
 
     captureCount := 0
@@ -108,6 +107,39 @@ func (board *Board) Move(move Move) error {
     board.squares[file][rank] = board.turn
     board.nextTurn()
     return nil
+}
+
+func (board *Board) isLegalMove(move Move) bool {
+    for _, m := range board.legalMoves(board.turn) {
+        if m == move {
+            return true
+        }
+    }
+    return false
+}
+
+func (board *Board) Moves() []Move {
+    return board.legalMoves(board.turn)
+}
+
+func (board *Board) legalMoves(turn Square) []Move {
+    moves := make([]Move, 0)
+    for file := 0; file < Width; file++ {
+        for rank := 0; rank < Height; rank++ {
+            for dy := -1; dy <= 1; dy++ {
+                for dx := -1; dx <= 1; dx++ {
+                    if dy == 0 && dx == 0 {
+                        continue
+                    }
+                    dir := Direction{dx, dy}
+                    if board.canCapture(file, rank, dir, turn) {
+                        moves = append(moves, MakeMove(file, rank))
+                    }
+                }
+            }
+        }
+    }
+    return moves
 }
 
 func (board *Board) canCapture(file, rank int, dir Direction, turn Square) bool {
@@ -152,25 +184,10 @@ func (board *Board) capture(file, rank int, dir Direction, turn Square) int {
 }
 
 func (board *Board) nextTurn() {
-    lightCapture, darkCapture := false, false
-    for file := 0; file < Width; file++ {
-        for rank := 0; rank < Height; rank++ {
-            for dy := -1; dy <= 1; dy++ {
-                for dx := -1; dx <= 1; dx++ {
-                    if dy == 0 && dx == 0 {
-                        continue
-                    }
-                    dir := Direction{dx, dy}
-                    if board.canCapture(file, rank, dir, Light) {
-                        lightCapture = true
-                    }
-                    if board.canCapture(file, rank, dir, Dark) {
-                        darkCapture = true
-                    }
-                }
-            }
-        }
-    }
+    lightMoves := board.legalMoves(Light)
+    darkMoves := board.legalMoves(Dark)
+    lightCapture := len(lightMoves) > 0
+    darkCapture := len(darkMoves) > 0
 
 
     if !lightCapture && !darkCapture {
