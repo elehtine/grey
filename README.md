@@ -1,5 +1,8 @@
 # Grey
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/elehtine/grey.svg)](https://pkg.go.dev/github.com/elehtine/grey)
+[![build and test](https://github.com/elehtine/grey/actions/workflows/go.yml/badge.svg)](https://github.com/elehtine/grey/actions/workflows/go.yml)
+
 Command line Reversi game with Golang.
 
 
