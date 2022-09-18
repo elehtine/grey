@@ -30,7 +30,7 @@ func startPosition() [Width][Height]Square {
     return squares
 }
 
-type Direction struct {
+type direction struct {
     dx, dy int
 }
 type Move struct {
@@ -96,7 +96,7 @@ func (board *Board) Move(move Move) error {
             if dy == 0 && dx == 0 {
                 continue
             }
-            captureCount += board.capture(file, rank, Direction{dx, dy}, board.turn)
+            captureCount += board.capture(file, rank, direction{dx, dy}, board.turn)
         }
     }
 
@@ -131,7 +131,7 @@ func (board *Board) legalMoves(turn Square) []Move {
                     if dy == 0 && dx == 0 {
                         continue
                     }
-                    dir := Direction{dx, dy}
+                    dir := direction{dx, dy}
                     if board.canCapture(file, rank, dir, turn) {
                         moves = append(moves, MakeMove(file, rank))
                     }
@@ -142,7 +142,7 @@ func (board *Board) legalMoves(turn Square) []Move {
     return moves
 }
 
-func (board *Board) canCapture(file, rank int, dir Direction, turn Square) bool {
+func (board *Board) canCapture(file, rank int, dir direction, turn Square) bool {
     if board.squares[file][rank] != Empty {
         return false
     }
@@ -168,7 +168,7 @@ func (board *Board) canCapture(file, rank int, dir Direction, turn Square) bool 
     return true
 }
 
-func (board *Board) capture(file, rank int, dir Direction, turn Square) int {
+func (board *Board) capture(file, rank int, dir direction, turn Square) int {
     if !board.canCapture(file, rank, dir, turn) {
         return 0
     }

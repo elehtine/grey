@@ -9,16 +9,16 @@ import (
     "github.com/elehtine/grey/reversi"
 )
 
-type Player interface {
+type player interface {
     move()
 }
 
-type User struct {
+type user struct {
     board *reversi.Board
     scanner *bufio.Scanner
 }
 
-type Bot struct {
+type bot struct {
     board *reversi.Board
     easy bool
 }
@@ -26,16 +26,16 @@ type Bot struct {
 type UserInterfaceBuilder struct {
     board *reversi.Board
     scanner *bufio.Scanner
-    darkPlayer Player
-    lightPlayer Player
+    darkPlayer player
+    lightPlayer player
 }
 
 func NewUserInterfaceBuilder(board *reversi.Board, scanner *bufio.Scanner) *UserInterfaceBuilder {
     return &UserInterfaceBuilder{
         board: board,
         scanner: scanner,
-        darkPlayer: &Bot{board: board, easy: false},
-        lightPlayer: &Bot{board: board, easy: false},
+        darkPlayer: &bot{board: board, easy: false},
+        lightPlayer: &bot{board: board, easy: false},
     }
 }
 
@@ -47,34 +47,34 @@ func (uiBuilder *UserInterfaceBuilder) LightPlayer(player string) {
     uiBuilder.lightPlayer = uiBuilder.createPlayer(player)
 }
 
-func (uiBuilder *UserInterfaceBuilder) GetUserInterface() *UserInterface {
-    return &UserInterface{
+func (uiBuilder *UserInterfaceBuilder) GetUserInterface() *userInterface {
+    return &userInterface{
         board: uiBuilder.board,
         darkPlayer: uiBuilder.darkPlayer,
         lightPlayer: uiBuilder.lightPlayer,
     }
 }
 
-func (uiBuilder *UserInterfaceBuilder) createPlayer(player string) Player {
+func (uiBuilder *UserInterfaceBuilder) createPlayer(player string) player {
     if player == "bot" {
-        return &Bot{
+        return &bot{
             board: uiBuilder.board,
             easy: false,
         }
     }
     if player == "user" {
-        return &User{
+        return &user{
             board: uiBuilder.board,
             scanner: uiBuilder.scanner,
         }
     }
-    return &Bot{
+    return &bot{
         board: uiBuilder.board,
         easy: true,
     }
 }
 
-func (user *User) move() {
+func (user *user) move() {
     fmt.Print("Give move: ")
     for {
         user.scanner.Scan()
@@ -97,7 +97,7 @@ func (user *User) move() {
     }
 }
 
-func (bot *Bot) move() {
+func (bot *bot) move() {
     legalMoves := bot.board.Moves()
     if bot.easy {
         index := rand.Intn(len(legalMoves))
@@ -126,13 +126,13 @@ func score(move reversi.Move) int {
     return file*file + rank*rank
 }
 
-type UserInterface struct {
+type userInterface struct {
     board *reversi.Board
-    darkPlayer Player
-    lightPlayer Player
+    darkPlayer player
+    lightPlayer player
 }
 
-func (ui *UserInterface) PlayGame() {
+func (ui *userInterface) PlayGame() {
     for ui.board.Status().Turn != reversi.Empty {
         turn := ui.board.Status().Turn
         draw(ui.board)
