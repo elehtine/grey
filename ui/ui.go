@@ -15,7 +15,7 @@ type Player interface {
 
 type User struct {
     board *reversi.Board
-    reader *bufio.Reader
+    scanner *bufio.Scanner
 }
 
 type Bot struct {
@@ -25,15 +25,15 @@ type Bot struct {
 
 type UserInterfaceBuilder struct {
     board *reversi.Board
-    reader *bufio.Reader
+    scanner *bufio.Scanner
     darkPlayer Player
     lightPlayer Player
 }
 
-func NewUserInterfaceBuilder(board *reversi.Board, reader *bufio.Reader) *UserInterfaceBuilder {
+func NewUserInterfaceBuilder(board *reversi.Board, scanner *bufio.Scanner) *UserInterfaceBuilder {
     return &UserInterfaceBuilder{
         board: board,
-        reader: reader,
+        scanner: scanner,
         darkPlayer: &Bot{board: board, easy: false},
         lightPlayer: &Bot{board: board, easy: false},
     }
@@ -65,7 +65,7 @@ func (uiBuilder *UserInterfaceBuilder) createPlayer(player string) Player {
     if player == "user" {
         return &User{
             board: uiBuilder.board,
-            reader: uiBuilder.reader,
+            scanner: uiBuilder.scanner,
         }
     }
     return &Bot{
@@ -76,16 +76,11 @@ func (uiBuilder *UserInterfaceBuilder) createPlayer(player string) Player {
 
 func (user *User) move() {
     fmt.Print("Give move: ")
-    var file, rank int
-
     for {
-        move, _, err := user.reader.ReadLine()
-        if err != nil {
-            fmt.Println(err.Error())
-            continue
-        }
+        user.scanner.Scan()
+        move := user.scanner.Text()
 
-        file, rank, err = parseMove(move)
+        file, rank, err := parseMove(move)
         if err != nil {
             fmt.Println(err.Error())
             continue
@@ -178,7 +173,7 @@ func result(board *reversi.Board) {
     fmt.Printf("Dark: %d, Light: %d\n", st.DarkPoints, st.LightPoints)
 }
 
-func parseMove(moveString []byte) (int, int, error) {
+func parseMove(moveString string) (int, int, error) {
     if len(moveString) != 2 {
         return -1, -1, errors.New("Wrong number of characters in move")
     }

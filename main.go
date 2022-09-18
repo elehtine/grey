@@ -3,6 +3,7 @@ package main
 import (
     "os"
     "bufio"
+    "fmt"
 
     "github.com/elehtine/grey/reversi"
     "github.com/elehtine/grey/ui"
@@ -10,11 +11,19 @@ import (
 
 func main() {
     board := reversi.NewBoard()
-    reader := bufio.NewReader(os.Stdin)
+    scanner := bufio.NewScanner(os.Stdin)
+    uiBuilder := ui.NewUserInterfaceBuilder(board, scanner)
 
-    uiBuilder := ui.NewUserInterfaceBuilder(board, reader)
-    uiBuilder.DarkPlayer("bot")
-    uiBuilder.LightPlayer("easy")
+    fmt.Print("Choose dark player (user, bot) ")
+    scanner.Scan()
+    darkPlayer := scanner.Text()
+
+    fmt.Print("Choose light player (user, bot) ")
+    scanner.Scan()
+    lightPlayer := scanner.Text()
+
+    uiBuilder.DarkPlayer(darkPlayer)
+    uiBuilder.LightPlayer(lightPlayer)
     userInterface := uiBuilder.GetUserInterface()
     userInterface.PlayGame()
 }
