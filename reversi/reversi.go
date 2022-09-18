@@ -34,11 +34,11 @@ type Direction struct {
     dx, dy int
 }
 type Move struct {
-    file, rank int
+    File, Rank int
 }
 
 func MakeMove(file, rank int) Move {
-    return Move{file: file, rank: rank}
+    return Move{File: file, Rank: rank}
 }
 
 type Board struct {
@@ -82,7 +82,7 @@ func (board *Board) count(turn Square) int {
 }
 
 func (board *Board) Move(move Move) error {
-    file, rank := move.file, move.rank
+    file, rank := move.File, move.Rank
     if board.turn == Empty {
         return errors.New("Game over")
     }

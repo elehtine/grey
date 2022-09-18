@@ -20,6 +20,7 @@ type User struct {
 
 type Bot struct {
     board *reversi.Board
+    easy bool
 }
 
 type PlayerGenerator struct {
@@ -36,7 +37,7 @@ func (playerGenerator *PlayerGenerator) CreateUser() Player {
 }
 
 func (playerGenerator *PlayerGenerator) CreateBot() Player {
-    return &Bot{board: playerGenerator.board}
+    return &Bot{board: playerGenerator.board, easy: false}
 }
 
 func (user *User) move() {
@@ -69,8 +70,31 @@ func (user *User) move() {
 
 func (bot *Bot) move() {
     legalMoves := bot.board.Moves()
-    n := len(legalMoves)
-    bot.board.Move(legalMoves[rand.Intn(n)])
+    if bot.easy {
+        n := len(legalMoves)
+        bot.board.Move(legalMoves[rand.Intn(n)])
+        return
+    }
+
+    index, best := 0, score(legalMoves[0])
+    for i, move := range legalMoves {
+        if best > score(move) {
+            best = score(move)
+            index = i
+        }
+    }
+    bot.board.Move(legalMoves[index])
+}
+
+func score(move reversi.Move) int {
+    file, rank := move.File, move.Rank
+    if file >= 4 {
+        file = 7 - file
+    }
+    if rank >= 4 {
+        rank = 7 - rank
+    }
+    return file*file + rank*rank
 }
 
 type UserInterface struct {
